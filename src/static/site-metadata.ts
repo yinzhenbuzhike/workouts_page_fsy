@@ -11,21 +11,12 @@ interface ISiteMetadataResult {
 }
 
 const data: ISiteMetadataResult = {
-  siteTitle: 'Arthur Feng 锻炼记录',
+  siteTitle: '晚风踏星河的运动记录',
   siteUrl: 'https://blog.4a1801.life',
   logo: 'https://pan.4a1801.life:11443/d/public/logo1.jpg',
   description: 'Personal site and blog',
   keywords: 'workouts, running, cycling, riding, roadtrip, hiking, swimming',
-  navLinks: [
-    {
-      name: '📝 Blog',
-      url: 'https://blog.4a1801.life',
-    },
-    {
-      name: '⭐ Repo',
-      url: 'https://github.com/arthurfsy2/workouts_page_fsy',
-    },
-  ],
+  navLinks: [ ],// 清空导航链接
 };
 
 export default data;
