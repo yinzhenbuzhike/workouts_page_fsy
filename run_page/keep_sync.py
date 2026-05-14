@@ -39,6 +39,14 @@ KEEP2TCX = {
     "indoorRunning": "Running",
     "mountaineering": "Hiking",
 }
+# 新增：Keep运动类型转中文映射
+KEEP2CHINESE = {
+    "outdoorWalking": "户外步行",
+    "outdoorRunning": "户外跑步",
+    "outdoorCycling": "户外骑行",
+    "indoorRunning": "室内跑步",
+    "mountaineering": "登山",
+}
 
 # need to test
 LOGIN_API = "https://api.gotokeep.com/v1.1/users/login"
@@ -174,6 +182,15 @@ def parse_raw_data_to_nametuple(
                     download_keep_tcx(tcx_data.toprettyxml(), str(keep_id))
     else:
         print(f"ID {keep_id} no gps data")
+    
+    # 解析中文运动类型和地址
+    chinese_sport_type = KEEP2CHINESE.get(run_data["dataType"], "运动")
+    chinese_address = run_data.get("region", "未知地点")
+    # 生成带日期的中文名称（格式：2024-05-20 户外跑步 - 北京市朝阳区）
+    start_date = datetime.fromtimestamp(start_time // 1000, tz=timezone.utc)
+    date_str = start_date.strftime("%Y-%m-%d")
+    chinese_name = f"{date_str} {chinese_sport_type} - {chinese_address}"
+
     polyline_str = polyline.encode(run_points_data) if run_points_data else ""
     start_latlng = start_point(*run_points_data[0]) if run_points_data else None
     start_date = datetime.fromtimestamp(start_time // 1000, tz=timezone.utc)
@@ -186,7 +203,8 @@ def parse_raw_data_to_nametuple(
         return
     d = {
         "id": int(keep_id),
-        "name": f"{KEEP2STRAVA[run_data['dataType']]} from keep",
+        # 替换为中文名称
+        "name": chinese_name,
         # future to support others workout now only for run
         "type": f"{KEEP2STRAVA[(run_data['dataType'])]}",
         "subtype": f"{KEEP2STRAVA[(run_data['dataType'])]}",
@@ -205,8 +223,11 @@ def parse_raw_data_to_nametuple(
         ),
         "average_speed": run_data["distance"] / run_data["duration"],
         "elevation_gain": elevation_gain,
-        "location_country": str(run_data.get("region", "")),
+        # 保留中文地址
+        "location_country": chinese_address,
         "source": "Keep",
+        # 新增：中文运动类型字段（可选）
+        "chinese_type": chinese_sport_type,
     }
     return namedtuple("x", d.keys())(*d.values())
 
@@ -543,4 +564,3 @@ if __name__ == "__main__":
         options.with_gpx,
         options.with_tcx,
     )
-    
